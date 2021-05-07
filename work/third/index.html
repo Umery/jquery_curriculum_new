@@ -34,8 +34,8 @@
         $('.nav').find('li').click(function() {
           var num = $(this).index();
           console.log(num)
-          $('.contents').find('li').addClass('is-hidden');
-          $('.contents').find('li').eq(num).removeClass('is-hidden');
+          $('.contents').find('li').addClass('is-hidden')
+                                   .eq(num).removeClass('is-hidden');
         });
       });
     </script>
