@@ -44,13 +44,14 @@
       //
       $(function() {
         var canAjax = true;
+        var book = ''
 
         $(document).on('click', '[data-js="page-next"], [data-js="page-prev"]', function(e) {
           e.preventDefault();
         });
 
         function ajax() {
-          var word = $('.search__text__input').val();
+          var word = book;
           $('ul, .message').empty();
           $('.pager').remove();
           $.ajax({
@@ -122,31 +123,31 @@
             }else if(data.page === 1) {
               // console.log('最初');
               $('[data-js="page-prev"]').addClass('disabled')
-              $('[data-js="page-next"]').click(function () {
+              $('[data-js="page-next"]').on('click', function() {
                 countUp();
                 ajax();
               });
             }else if(data.page === data.pageCount) {
               // console.log('最後');
               $('[data-js="page-next"]').addClass('disabled')
-              $('[data-js="page-prev"]').click(function () {
+              $('[data-js="page-prev"]').on('click', function() {
                 countDown();
                 ajax();
               });
             } else {
-              $('[data-js="page-next"]').click(function () {
+              $('[data-js="page-next"]').on('click', function() {
                 countUp();
                 ajax();
               });
-              $('[data-js="page-prev"]').click(function () {
+              $('[data-js="page-prev"]').on('click', function() {
                 countDown();
                 ajax();
               });
             }
           }).fail(function (xhr, status, error) {
-            console.log("XMLHttpRequest : " + xhr.status);
-            console.log("textStatus     : " + status);
-            console.log("errorThrown    : " + error.message);
+            // console.log("XMLHttpRequest : " + xhr.status);
+            // console.log("textStatus     : " + status);
+            // console.log("errorThrown    : " + error.message);
             if (xhr.status === 400) {
               var messageNull = $('<p class = "error-message">検索文字を入力してください。</p>');
               $('.message').prepend(messageNull);
@@ -163,19 +164,20 @@
         }
 
         function countUp() {
-          console.log("Up");
+          // console.log("Up");
           pageNum += 1;
           return pageNum;
         }
 
         function countDown() {
-          console.log("Down");
+          // console.log("Down");
           pageNum -= 1;
           return pageNum;
         }
 
         $('.search__btn').on('click', function() {
           pageNum = 1;
+          book = $('.search__text__input').val();
           if(!canAjax) {
             // console.log('通信中');
             return;
