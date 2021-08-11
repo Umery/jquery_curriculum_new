@@ -44,18 +44,6 @@
       //
       $(function() {
         var canAjax = true;
-        var pageNum = 1;
-        $('.search__btn').on('click', function() {
-          pageNum = 1;
-          if(!canAjax) {
-            // console.log('通信中');
-            return;
-          }
-          canAjax = false;
-          ajax();
-          countUp();
-          countDown();
-        });
 
         $(document).on('click', '[data-js="page-next"], [data-js="page-prev"]', function(e) {
           e.preventDefault();
@@ -70,21 +58,22 @@
             type: 'GET',
             datatype: 'json',
             data: {
-              keyword: word,
               // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
               applicationId: appId,
               // (今回はこの変数をIDとして使用します) ※メンターから別途渡されるファイルを読み込んでください。
               booksGenreId: '001',
+              keyword: word,
               hits: '20',
               page: pageNum
             }
           }).done(function(data) {
+            // console.log(pageNum);
+            //
             // この中にデータ取得後の動きを記述していきます。
-            console.log(data.hits);
-            console.log(data.page);
-            console.log(pageNum)
+            // console.log(data);
             // $.ajaxによってデータが取得できたら、必要なデータ(作品名とか作者名とか)を取得します。
             // 取得できたらHTMLに<ul class='lists'></ul>を用意しているので、下のテンプレに沿ってデータを入れ込みましょう。
+            //
             if (data.hits > 0) {
               $.each(data.Items,function(index,item) {
                 var list = $(
@@ -105,6 +94,14 @@
               $('.message').prepend(messageNot);
               return
             }
+            //
+            // 取得できた書籍の件数をもとに、ページャを作成しましょう
+            // ページャの条件
+            // ├ 「現在のページ数」と「全てのページ数」が表示されている
+            // ├ 「前へ」と「次へ」のボタンがある
+            // ├ 1ページ目では「前へ」に、最後のページでは「次へ」にdisabledクラスをつけて非活性（使用不能）にする
+            // └ 1ページしかない場合はどちらもdisabledクラスをつけて非活性にする
+            //
             $('ul').after('<div class="pager" data-js="pager"></div>')
             var pager = $(
               '<div class="counter">' +
@@ -125,15 +122,31 @@
             }else if(data.page === 1) {
               // console.log('最初');
               $('[data-js="page-prev"]').addClass('disabled')
+              $('[data-js="page-next"]').click(function () {
+                countUp();
+                ajax();
+              });
             }else if(data.page === data.pageCount) {
               // console.log('最後');
               $('[data-js="page-next"]').addClass('disabled')
-            // } else {
+              $('[data-js="page-prev"]').click(function () {
+                countDown();
+                ajax();
+              });
+            } else {
+              $('[data-js="page-next"]').click(function () {
+                countUp();
+                ajax();
+              });
+              $('[data-js="page-prev"]').click(function () {
+                countDown();
+                ajax();
+              });
             }
           }).fail(function (xhr, status, error) {
-            // console.log("XMLHttpRequest : " + xhr.status);
-            // console.log("textStatus     : " + status);
-            // console.log("errorThrown    : " + error.message);
+            console.log("XMLHttpRequest : " + xhr.status);
+            console.log("textStatus     : " + status);
+            console.log("errorThrown    : " + error.message);
             if (xhr.status === 400) {
               var messageNull = $('<p class = "error-message">検索文字を入力してください。</p>');
               $('.message').prepend(messageNull);
@@ -150,39 +163,27 @@
         }
 
         function countUp() {
-          $(document).on('click', '[data-js="page-next"]', function() {
-            // console.log("Up");
-            pageNum = plus();
-            ajax();
-            function plus() {
-              pageNum += 1;
-              return pageNum;
-              //+になった値が上に返る
-            }
-          });
+          console.log("Up");
+          pageNum += 1;
+          return pageNum;
         }
 
         function countDown() {
-          $(document).on('click', '[data-js="page-prev"]', function() {
-            // console.log("Down");
-            pageNum = minus();
-            ajax();
-            function minus() {
-              pageNum -= 1;
-              return pageNum;
-              //+になった値が上に返る
-            }
-          });
+          console.log("Down");
+          pageNum -= 1;
+          return pageNum;
         }
-      });
-      //
-      // 取得できた書籍の件数をもとに、ページャを作成しましょう
-      // ページャの条件
-      // ├ 「現在のページ数」と「全てのページ数」が表示されている
-      // ├ 「前へ」と「次へ」のボタンがある
-      // ├ 1ページ目では「前へ」に、最後のページでは「次へ」にdisabledクラスをつけて非活性（使用不能）にする
-      // └ 1ページしかない場合はどちらもdisabledクラスをつけて非活性にする
-      //   
+
+        $('.search__btn').on('click', function() {
+          pageNum = 1;
+          if(!canAjax) {
+            // console.log('通信中');
+            return;
+          }
+          canAjax = false;
+          ajax();
+        });
+      }); 
     </script>
   </body>
 </html>
